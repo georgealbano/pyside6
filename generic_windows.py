@@ -1,5 +1,5 @@
 
-from enviroments import WINDOW_ICON, SMALL_FONT_SIZE
+from components.utils import WINDOW_ICON, SMALL_FONT_SIZE
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QMainWindow, QWidget, QLabel, QVBoxLayout
 
@@ -23,7 +23,7 @@ class MainWindow(QMainWindow):
         self.setFixedSize(self.width(), self.height())
 
         # definindo um metodo para adicionar widgets nos layouts
-    def addv_layout(self, widget: QWidget):
+    def widget_for_vlayout(self, widget: QWidget):
         self.v_layout.addWidget(widget)
 
 
