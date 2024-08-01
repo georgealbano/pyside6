@@ -20,11 +20,21 @@ TEXT_MARGIN = 15
 MINIMUM_WIDTH = 500
 
 
-NUM_OR_DOT_REGEX = re.compile(r'[0-9.]')
+NUM_OR_DOT_REGEX = re.compile(r'^[0-9.]$')
 
 
 def is_num_ordot(text: str):
     return bool(NUM_OR_DOT_REGEX.search(text))
+
+
+def is_valid_numb(string: str):
+    valid = False
+    try:
+        float(string)
+        valid = True
+    except ValueError:
+        valid = False
+    return valid
 
 
 def is_empyty(text: str):

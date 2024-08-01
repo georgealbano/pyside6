@@ -1,8 +1,7 @@
 from components.display import Display
+from components.utils import MEDIUM_FONT_SIZE, is_num_ordot, is_empyty, is_valid_numb
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QPushButton, QGridLayout, QWidget
-
-from components.utils import MEDIUM_FONT_SIZE, is_num_ordot, is_empyty
 
 
 class Button(QPushButton):
@@ -54,4 +53,8 @@ class Button_grid(QGridLayout):
 
     def _insert_button_todisplay(self, button):
         button_text = button.text()
+        new_display_text = self.dispalay.text() + button_text
+
+        if not is_valid_numb(new_display_text):
+            return
         self.dispalay.insert(button_text)
