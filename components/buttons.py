@@ -2,7 +2,7 @@
 from components.display import Display
 from components.utils import MEDIUM_FONT_SIZE, is_num_ordot, is_empyty, is_valid_numb
 from generic_windows import Info, MainWindow
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot, Qt
 from PySide6.QtWidgets import QPushButton, QGridLayout, QWidget
 import math
 
@@ -11,6 +11,7 @@ class Button(QPushButton):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.config_style()
+        self.setFocusPolicy(Qt.NoFocus)
 
     def config_style(self):
         font = self.font()
@@ -51,9 +52,17 @@ class Button_grid(QGridLayout):
         self._equation = value
         self.info.setText(value)
 
+    def temporario(self):
+        print('estou acessando o enter')
+
     def make_grid(self):
-        self.display.eq_request.connect(
-            lambda: self._config_specialbutton(button))
+        self.display.enter_request.connect(
+            self.temporario)
+
+        self.display.del_request.connect(self.display.backspace)
+
+        self.display.clear_request.connect(
+            lambda: print('sinal recebido'))
 
         for i, row_data in enumerate(self._grid_mask):
             for j, button_tex in enumerate(row_data):
@@ -66,7 +75,7 @@ class Button_grid(QGridLayout):
                 self.addWidget(button, i, j)
                 slot = self.make_slot(
                     self._insert_button_todisplay,
-                    button
+                    button_tex
                 )
                 self._signal_clicked(button, slot)
 
@@ -97,7 +106,6 @@ class Button_grid(QGridLayout):
                 self.make_slot(self._operator_clicked, button))
 
         if text == '◀':
-            print(text)
             self._signal_clicked(button, self.display.backspace)
 
     def make_slot(self, func, *args, **kwargs):
@@ -106,8 +114,8 @@ class Button_grid(QGridLayout):
             func(*args, **kwargs)
         return real_slot
 
-    def _insert_button_todisplay(self, button):
-        button_text = button.text()
+    def _insert_button_todisplay(self, button_text):
+
         new_display_text = self.display.text() + button_text
 
         if not is_valid_numb(new_display_text):
