@@ -25,7 +25,7 @@ if __name__ == '__main__':
     window.widget_for_vlayout(display)
 
     # button
-    button_grid = Button_grid(display)
+    button_grid = Button_grid(display, info, window)
     window.v_layout.addLayout(button_grid)
 
     window.adjust_fixed_size()
