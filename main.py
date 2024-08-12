@@ -1,7 +1,7 @@
 
 from components.buttons import Button, Button_grid
 from components.display import Display
-from components.utils import WINDOW_ICON
+from components.utils import WINDOW_ICON,  is_num_ordot
 from generic_windows import MainWindow, Info
 from styles import setupTheme
 from PySide6.QtGui import QIcon

@@ -52,8 +52,8 @@ class Button_grid(QGridLayout):
         self._equation = value
         self.info.setText(value)
 
-    def temporario(self):
-        print('estou acessando o enter')
+    def temporario(self, *args):
+        print(f'Estou pressionando', args)
 
     def make_grid(self):
         self.display.enter_request.connect(
@@ -63,6 +63,8 @@ class Button_grid(QGridLayout):
 
         self.display.clear_request.connect(
             lambda: print('sinal recebido'))
+
+        self.display.inputPressed.connect(self.temporario)
 
         for i, row_data in enumerate(self._grid_mask):
             for j, button_tex in enumerate(row_data):
