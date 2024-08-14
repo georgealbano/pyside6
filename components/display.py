@@ -9,7 +9,8 @@ class Display(QLineEdit):
     enter_request = Signal()
     del_request = Signal()
     clear_request = Signal()
-    inputPressed = Signal(str)
+    input_pressed = Signal(str)
+    operator_pressed = Signal(str)
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -31,26 +32,33 @@ class Display(QLineEdit):
         is_enter = key in [KEYS.Key_Enter, KEYS.Key_Return]
         is_del = key in [KEYS.Key_Backspace, KEYS.Key_Delete]
         is_esc = key in [KEYS.Key_Escape, KEYS.Key_Return]
+        is_operator = key in [
+            KEYS.Key_C, KEYS.Key_Plus, KEYS.Key_Minus, KEYS.Key_Asterisk,
+            KEYS.Key_Slash, KEYS.Key_P
+        ]
 
         if is_enter or text == '=':
-            print('Pressionou Enter')
             self.enter_request.emit()
             return event.ignore()
 
         if is_del or text.lower() == 'd':
-            print('Pressionou del')
             self.del_request.emit()
             return event.ignore()
 
         if is_esc or text.lower() == 'c':
-            print('Pressionou esc')
             self.clear_request.emit()
+            return event.ignore()
+
+        if is_operator:
+            if text.lower() == 'p':
+                text = '^'
+
+            self.operator_pressed.emit(text)
             return event.ignore()
 
         if is_empyty(test):
             return event.ignore()
 
         if is_num_ordot(text):
-            print('input pressionado', type(self).__name__)
-            self.inputPressed .emit(text)
+            self.input_pressed .emit(text)
             return event.ignore()

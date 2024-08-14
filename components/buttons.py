@@ -29,7 +29,7 @@ class Button_grid(QGridLayout):
             ['7', '8', '9', '*'],
             ['4', '5', '6', '-'],
             ['1', '2', '3', '+'],
-            ['',  '0', '.', '='],
+            ['N',  '0', '.', '='],
         ]
         self.display = display
         self.info = info
@@ -57,14 +57,16 @@ class Button_grid(QGridLayout):
 
     def make_grid(self):
         self.display.enter_request.connect(
-            self.temporario)
+            self._eq)
 
         self.display.del_request.connect(self.display.backspace)
 
         self.display.clear_request.connect(
-            lambda: print('sinal recebido'))
+            self._clear)
 
-        self.display.inputPressed.connect(self.temporario)
+        self.display.input_pressed.connect(self._insert_todisplay)
+
+        self.display.operator_pressed.connect(self._config_lefop)
 
         for i, row_data in enumerate(self._grid_mask):
             for j, button_tex in enumerate(row_data):
@@ -76,7 +78,7 @@ class Button_grid(QGridLayout):
 
                 self.addWidget(button, i, j)
                 slot = self.make_slot(
-                    self._insert_button_todisplay,
+                    self._insert_todisplay,
                     button_tex
                 )
                 self._signal_clicked(button, slot)
@@ -91,11 +93,15 @@ class Button_grid(QGridLayout):
 
             self._signal_clicked(button, self._clear)
 
+        if text == 'N':
+
+            self._signal_clicked(button, self._invert_number)
+
         if text in '+-/*':
 
             self._signal_clicked(
                 button,
-                self.make_slot(self._operator_clicked, button))
+                self.make_slot(self._config_lefop, text))
 
         if text == '=':
 
@@ -105,18 +111,27 @@ class Button_grid(QGridLayout):
 
             self._signal_clicked(
                 button,
-                self.make_slot(self._operator_clicked, button))
+                self.make_slot(self._config_lefop, text))
 
         if text == '◀':
             self._signal_clicked(button, self.display.backspace)
 
+    @Slot()
     def make_slot(self, func, *args, **kwargs):
         @ Slot(bool)
         def real_slot(checked):
             func(*args, **kwargs)
         return real_slot
 
-    def _insert_button_todisplay(self, button_text):
+    @Slot()
+    def _invert_number(self, text):
+        display_text = self.display.text()
+        if not is_valid_numb(display_text):
+            return
+        new_number = -float(display_text)
+        self.display.setText(str(new_number))
+
+    def _insert_todisplay(self, button_text):
 
         new_display_text = self.display.text() + button_text
 
@@ -124,8 +139,8 @@ class Button_grid(QGridLayout):
             return
         self.display.insert(button_text)
 
-    def _operator_clicked(self, button):
-        button_text = button.text()  # +-/* (etc...)
+    def _config_lefop(self, text):
+        # button_text = button.text()  # +-/* (etc...)
         display_text = self.display.text()  # Deverá ser meu número _left
         self.display.clear()  # Limpa o display
 
@@ -140,14 +155,15 @@ class Button_grid(QGridLayout):
         if self._left is None:
             self._left = float(display_text)
 
-        self._op = button_text
+        self._op = text
         self.equation = f'{self._left} {self._op} ??'
 
+    @Slot()
     def _eq(self):
         display_text = self.display.text()
 
-        if not is_valid_numb(display_text):
-            print('digite um numero valido')
+        if not is_valid_numb(display_text) or self._left is None:
+            self._show_erro('Conta está incompleta')
             return
         self._right = float(display_text)
         self.equation = f'{self._left} {self._op} {self._right}'
@@ -158,10 +174,10 @@ class Button_grid(QGridLayout):
             else:
                 result = eval(self.equation)
         except ZeroDivisionError:
-            print('Zero Division Error')
+            self._show_erro('Zero Division Error')
 
         except OverflowError:
-            print('Numero ecedeu os limites ')
+            self._show_erro('Numero ecedeu os limites ')
 
         self.display.clear()
         self.info.setText(f'{self.equation} = {result}')
